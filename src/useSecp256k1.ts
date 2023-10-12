@@ -6,6 +6,7 @@ import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { Connector } from './types.ts';
 import { useLockInfo } from './useLockInfo.ts';
 import { useProvider } from './useProvider.ts';
 
@@ -19,7 +20,7 @@ const unipassConnectStringAtom = atomWithStorage('unipassConnectString', '');
 
 const signatureAtom = atom<string>('');
 
-export function useSecp256k1() {
+export function useSecp256k1(): Connector {
   const [unipassConnectString, setUnipassConnectString] = useAtom(
     unipassConnectStringAtom,
   );
@@ -73,6 +74,7 @@ export function useSecp256k1() {
   }, []);
 
   return {
+    name: 'UniPass (Faker)',
     ...useLockInfo(lock),
     signature,
     sign,

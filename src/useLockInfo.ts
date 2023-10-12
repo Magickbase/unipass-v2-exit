@@ -8,7 +8,7 @@ export function useLockInfo(lock?: Script) {
   const lumosConfig = config.lumosConfig;
 
   const address = useMemo(() => {
-    if (!lock) return null;
+    if (!lock) return undefined;
 
     return helpers.encodeToAddress(lock, { config: lumosConfig });
   }, [lock, lumosConfig]);

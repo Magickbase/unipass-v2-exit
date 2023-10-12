@@ -26,7 +26,10 @@ export const TransferAssetList = () => {
   return (
     <Stack>
       {cells.map((cell) => (
-        <Box key={String(cell.outPoint?.txHash) + String(cell.outPoint?.index)}>
+        <Box
+          key={String(cell.outPoint?.txHash) + String(cell.outPoint?.index)}
+          w="full"
+        >
           <CellInfo cell={cell} />
           <Divider />
         </Box>

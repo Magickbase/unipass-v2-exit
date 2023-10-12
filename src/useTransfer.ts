@@ -4,24 +4,28 @@ import { useMutation, useQuery } from 'react-query';
 
 import { addCellDep } from './helper.ts';
 import { useAssetList } from './useAssetList.ts';
-import { useJoyid } from './useJoyid.ts';
+import { useReceiver, useSender } from './useConnector.ts';
 import { useProvider } from './useProvider.ts';
-import { useUnipass } from './useUnipass.ts';
 
 export function useTransfer() {
   const { rpcUrl, lumosConfig, indexer, rpc } = useProvider();
   const { data: cells } = useAssetList();
-  const unipass = useUnipass();
-  const joyid = useJoyid();
+  const sender = useSender();
+  const receiver = useReceiver();
 
-  const sender = unipass.lock;
-  const receiver = joyid.lock;
+  const senderLock = sender.lock;
+  const receiverLock = receiver.lock;
 
   const transferTxQuery = useQuery({
-    queryKey: ['transfer', { rpcUrl, sender, receiver, cells }],
-    enabled: !!(cells?.length && sender && receiver),
+    queryKey: [
+      'transfer',
+      { rpcUrl, sender: senderLock, receiver: receiverLock, cells },
+    ],
+    enabled: !!(cells?.length && senderLock && receiverLock),
     queryFn: async () => {
-      if (!(cells?.length && sender && receiver)) throw new Error('Impossible');
+      if (!(cells?.length && senderLock && receiverLock)) {
+        throw new Error('Impossible');
+      }
 
       let txSkeleton = helpers.TransactionSkeleton({
         cellProvider: indexer,
@@ -49,7 +53,7 @@ export function useTransfer() {
       txSkeleton = txSkeleton.update('outputs', (outputs) =>
         outputs.map((item) => ({
           ...item,
-          cellOutput: { ...item.cellOutput, lock: receiver },
+          cellOutput: { ...item.cellOutput, lock: receiverLock },
         })),
       );
 
@@ -72,7 +76,7 @@ export function useTransfer() {
             cellOutput: {
               ...cell.cellOutput,
               capacity: capacity.toHexString(),
-              lock: receiver,
+              lock: receiverLock,
             },
           };
         }),
@@ -80,7 +84,7 @@ export function useTransfer() {
 
       if (neededFee.gt(0)) {
         throw new Error(
-          `Not enough capacity, please try again later or deposit mode CKB to your address, ${unipass.address}`,
+          `Not enough capacity, please try again later or deposit mode CKB to your address, ${sender.address}`,
         );
       }
 
@@ -101,12 +105,12 @@ export function useTransfer() {
         return;
       }
 
-      if (unipass.signature) {
-        const tx = helpers.sealTransaction(txSkeleton, [unipass.signature]);
+      if (sender.signature) {
+        const tx = helpers.sealTransaction(txSkeleton, [sender.signature]);
         const txHash = rpc.sendTransaction(tx);
 
         // clear the signature after using it
-        unipass.finishSign();
+        sender.finishSign();
 
         return txHash;
       }
@@ -119,16 +123,16 @@ export function useTransfer() {
         );
       }
 
-      unipass.sign(message);
+      sender.sign(message);
     },
   });
 
   // execute the mutation when the signature is in the URL after redirecting from the UniPass
   useEffect(() => {
-    if (txSkeleton && unipass.signature && !mutation.isLoading) {
+    if (txSkeleton && sender.signature && !mutation.isLoading) {
       mutation.mutate();
     }
-  }, [unipass.signature, txSkeleton, mutation.isLoading]);
+  }, [sender.signature, txSkeleton, mutation.isLoading]);
 
   return mutation;
 }

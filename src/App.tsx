@@ -1,11 +1,11 @@
-import { ArrowDownIcon } from '@chakra-ui/icons';
+import { ArrowUpDownIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
   Button,
-  Center,
   ChakraProvider,
   Container,
+  IconButton,
   Spinner,
   Stack,
 } from '@chakra-ui/react';
@@ -14,9 +14,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { TransferAssetList } from './TransferAssetList.tsx';
 import { useAssetList } from './useAssetList.ts';
-import { useJoyid } from './useJoyid';
-import { useUnipass } from './useUnipass.ts';
-// import { useUnipass } from './useUnipass';
+import { useReceiver, useSender, useSwitchConnector } from './useConnector.ts';
 
 export default function App() {
   const client = new QueryClient();
@@ -31,12 +29,13 @@ export default function App() {
 }
 
 const Main = () => {
-  const unipass = useUnipass();
-  const joyid = useJoyid();
+  const sender = useSender();
+  const receiver = useReceiver();
   const assetList = useAssetList();
+  const switchConnector = useSwitchConnector();
 
   const assetListElement = useMemo(() => {
-    if (!unipass.address || !joyid.address) {
+    if (!sender.address || !receiver.address) {
       return 'Please connect to the wallet first.';
     }
 
@@ -45,53 +44,58 @@ const Main = () => {
     }
 
     return <TransferAssetList />;
-  }, [assetList.data, unipass.address, joyid.address]);
+  }, [assetList.data, sender.address, receiver.address]);
 
   const unipassConnect = useMemo(() => {
-    if (unipass.address) {
+    if (sender.address) {
       return (
         <>
-          {unipass.address}{' '}
-          <Button size="xs" onClick={unipass.disconnect}>
+          {sender.address}{' '}
+          <Button size="xs" onClick={sender.disconnect}>
             Disconnect
           </Button>
         </>
       );
     }
 
-    return <Button onClick={unipass.connect}>Connect</Button>;
-  }, [unipass]);
+    return <Button onClick={sender.connect}>Connect</Button>;
+  }, [sender]);
 
   const joyidConnect = useMemo(() => {
-    if (joyid.address) {
+    if (receiver.address) {
       return (
         <>
-          {joyid.address}{' '}
-          <Button size="xs" onClick={joyid.disconnect}>
+          {receiver.address}{' '}
+          <Button size="xs" onClick={receiver.disconnect}>
             Disconnect
           </Button>
         </>
       );
     }
-    return <Button onClick={joyid.connect}>Connect</Button>;
-  }, [joyid]);
+    return <Button onClick={receiver.connect}>Connect</Button>;
+  }, [receiver]);
 
   return (
     <Container>
       <Stack>
         <Box>
-          <Badge>From (UniPassV2)</Badge>
+          <Badge>From ({sender.name})</Badge>
           {unipassConnect}
         </Box>
         <Box>
-          <ArrowDownIcon />
+          <IconButton
+            aria-label="swap"
+            icon={<ArrowUpDownIcon />}
+            rounded="full"
+            onClick={switchConnector}
+          />
         </Box>
         <Box>
-          <Badge>To (JoyID)</Badge> {joyidConnect}
+          <Badge>To ({receiver.name})</Badge> {joyidConnect}
         </Box>
       </Stack>
 
-      <Center mt={8}>{assetListElement}</Center>
+      <Box mt={8}>{assetListElement}</Box>
     </Container>
   );
 };

@@ -1,12 +1,12 @@
 import { Indexer } from '@ckb-lumos/lumos';
 import { useQuery } from 'react-query';
 
+import { useSender } from './useConnector.ts';
 import { useProvider } from './useProvider.ts';
-import { useUnipass } from './useUnipass.ts';
 
 export function useAssetList() {
   const { rpcUrl, lumosConfig } = useProvider();
-  const { lock } = useUnipass();
+  const { lock } = useSender();
 
   return useQuery({
     queryKey: ['assetList', { rpcUrl, lock }],
@@ -16,6 +16,7 @@ export function useAssetList() {
       const cells = await indexer.getCells({
         script: lock!,
         scriptType: 'lock',
+        scriptSearchMode: 'exact',
       });
 
       return cells.objects.filter((cell) => {
