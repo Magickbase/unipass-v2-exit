@@ -1,16 +1,23 @@
 import {
   Box,
   Button,
-  Center,
   Divider,
   Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spacer,
   Stack,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { bytes } from '@ckb-lumos/codec';
 import { Uint128LE } from '@ckb-lumos/codec/lib/number';
 import { BI, Cell } from '@ckb-lumos/lumos';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useAssetList } from './useAssetList.ts';
 import { useProvider } from './useProvider.ts';
@@ -18,7 +25,13 @@ import { useTransfer } from './useTransfer.ts';
 
 export const TransferAssetList = () => {
   const { data: cells } = useAssetList();
-  const { mutate, isLoading } = useTransfer();
+  const { mutate, isLoading, data, isSuccess, error } = useTransfer();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (!data || !isSuccess) return;
+    onOpen();
+  }, [data, isSuccess, onOpen]);
 
   if (!cells) return null;
   if (!cells.length) return 'No transferable assets found';
@@ -35,7 +48,7 @@ export const TransferAssetList = () => {
         </Box>
       ))}
 
-      <Center py={4}>
+      <Box py={4}>
         <Button
           colorScheme="green"
           isLoading={isLoading}
@@ -45,7 +58,24 @@ export const TransferAssetList = () => {
         >
           Transfer
         </Button>
-      </Center>
+        {error ? <Box color="red">{String(error)}</Box> : null}
+        {data ? <Box color="green">{data}</Box> : null}
+      </Box>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Transaction sent</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>{data}</ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="green" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Stack>
   );
 };
@@ -67,7 +97,7 @@ const CellInfo = ({ cell }: { cell: Cell }) => {
     }
 
     return 'Unknown Asset';
-  }, [cell, lumosConfig]);
+  }, [cell.data, lumosConfig.SCRIPTS.SUDT.CODE_HASH, output.type]);
 
   return (
     <Flex py={2}>

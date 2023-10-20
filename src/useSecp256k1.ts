@@ -39,15 +39,21 @@ export function useSecp256k1(): Connector {
     url.searchParams.delete('signature');
     window.history.replaceState({}, '', url.toString());
     setSignature(signature);
-  }, []);
+  }, [setSignature]);
 
-  const sign = useCallback((message: BytesLike) => {
-    const signature = hd.key.signRecoverable(bytes.hexify(message), privateKey);
-    const url = new URL(location.href);
-    url.searchParams.set('signature', signature);
+  const sign = useCallback(
+    (message: BytesLike) => {
+      const signature = hd.key.signRecoverable(
+        bytes.hexify(message),
+        privateKey,
+      );
+      const url = new URL(location.href);
+      url.searchParams.set('signature', signature);
 
-    window.open(url.toString(), '_self');
-  }, []);
+      window.open(url.toString(), '_self');
+    },
+    [privateKey],
+  );
 
   const connect = () => {
     setUnipassConnectString(hd.key.privateKeyToBlake160(privateKey));
@@ -62,7 +68,7 @@ export function useSecp256k1(): Connector {
       hashType: SECP256K1.HASH_TYPE,
       args: unipassConnectString,
     };
-  }, [unipassConnectString]);
+  }, [lumosConfig.SCRIPTS.SECP256K1_BLAKE160, unipassConnectString]);
 
   const disconnect = () => {
     setUnipassConnectString('');
@@ -71,7 +77,7 @@ export function useSecp256k1(): Connector {
 
   const finishSign = useCallback(() => {
     setSignature('');
-  }, []);
+  }, [setSignature]);
 
   return {
     name: 'UniPass (Faker)',

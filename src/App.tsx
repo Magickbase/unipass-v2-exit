@@ -44,9 +44,9 @@ const Main = () => {
     }
 
     return <TransferAssetList />;
-  }, [assetList.data, sender.address, receiver.address]);
+  }, [sender.address, receiver.address, assetList.isLoading]);
 
-  const unipassConnect = useMemo(() => {
+  const senderConnect = useMemo(() => {
     if (sender.address) {
       return (
         <>
@@ -61,7 +61,7 @@ const Main = () => {
     return <Button onClick={sender.connect}>Connect</Button>;
   }, [sender]);
 
-  const joyidConnect = useMemo(() => {
+  const receiverConnect = useMemo(() => {
     if (receiver.address) {
       return (
         <>
@@ -80,7 +80,7 @@ const Main = () => {
       <Stack>
         <Box>
           <Badge>From ({sender.name})</Badge>
-          {unipassConnect}
+          {senderConnect}
         </Box>
         <Box>
           <IconButton
@@ -91,7 +91,7 @@ const Main = () => {
           />
         </Box>
         <Box>
-          <Badge>To ({receiver.name})</Badge> {joyidConnect}
+          <Badge>To ({receiver.name})</Badge> {receiverConnect}
         </Box>
       </Stack>
 

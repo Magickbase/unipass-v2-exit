@@ -12,3 +12,7 @@ pnpm dev
 ## Development
 
 UniPass v2 is not available on the testnet, so there is a mock Connector that simulates the UniPass v2 Connector via Secp256k1 private key. You can change the private key `testPrivateKey` in the local storage, or use the default private key `0xeeeeeeee...eeeeeeee` to test
+
+### Environment Variables
+
+Check [.env.example](./envs/.env.example) for details.

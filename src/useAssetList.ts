@@ -1,3 +1,4 @@
+import { Cell } from '@ckb-lumos/base';
 import { Indexer } from '@ckb-lumos/lumos';
 import { useQuery } from 'react-query';
 
@@ -13,13 +14,17 @@ export function useAssetList() {
     queryFn: async () => {
       const indexer = new Indexer(rpcUrl);
 
-      const cells = await indexer.getCells({
-        script: lock!,
-        scriptType: 'lock',
+      const cells: Cell[] = [];
+
+      const collector = indexer.collector({
+        lock: lock!,
         scriptSearchMode: 'exact',
       });
+      for await (const cell of collector.collect()) {
+        cells.push(cell);
+      }
 
-      return cells.objects.filter((cell) => {
+      return cells.filter((cell) => {
         if (!cell.cellOutput.type && cell.data === '0x') {
           return true;
         }

@@ -25,7 +25,7 @@ export function useJoyid(): Connector {
 
   const connectToJoyid = useCallback(
     () => connect().then(setJoyidConnectString),
-    [],
+    [setJoyidConnectString],
   );
 
   const lock = useMemo(() => {
@@ -51,31 +51,34 @@ export function useJoyid(): Connector {
       hashType: OMNILOCK.HASH_TYPE,
       args: args,
     };
-  }, [joyidConnectString]);
+  }, [joyidConnectString, lumosConfig.SCRIPTS.OMNILOCK]);
 
   const disconnectFromJoyid = useCallback(() => {
     setJoyidConnectString('');
-  }, []);
+  }, [setJoyidConnectString]);
 
-  const sign: Connector['sign'] = useCallback((message) => {
-    void signMessage(bytes.bytify(message), joyidConnectString).then(
-      (signature) => {
-        let v = Number.parseInt(signature.slice(-2), 16);
-        if (v >= 27) v -= 27;
-        signature =
-          '0x' + signature.slice(2, -2) + v.toString(16).padStart(2, '0');
+  const sign: Connector['sign'] = useCallback(
+    (message) => {
+      void signMessage(bytes.bytify(message), joyidConnectString).then(
+        (signature) => {
+          let v = Number.parseInt(signature.slice(-2), 16);
+          if (v >= 27) v -= 27;
+          signature =
+            '0x' + signature.slice(2, -2) + v.toString(16).padStart(2, '0');
 
-        const packedSignature = commons.omnilock.OmnilockWitnessLock.pack({
-          signature,
-        });
-        setJoyidSignature(bytes.hexify(packedSignature));
-      },
-    );
-  }, []);
+          const packedSignature = commons.omnilock.OmnilockWitnessLock.pack({
+            signature,
+          });
+          setJoyidSignature(bytes.hexify(packedSignature));
+        },
+      );
+    },
+    [joyidConnectString, setJoyidSignature],
+  );
 
   const finishSign = useCallback(() => {
     setJoyidSignature(undefined);
-  }, []);
+  }, [setJoyidSignature]);
 
   return {
     name: 'JoyID',

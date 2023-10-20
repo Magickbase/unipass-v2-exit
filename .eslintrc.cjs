@@ -26,12 +26,19 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
+    'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:jsx-a11y/recommended',
     'plugin:prettier/recommended', // Make sure this is always the last element in the array.
   ],
-  plugins: ['simple-import-sort', 'prettier', 'import', 'unused-imports'],
+  plugins: [
+    'simple-import-sort',
+    'prettier',
+    'import',
+    'unused-imports',
+    'react-hooks',
+  ],
   rules: {
     'prettier/prettier': ['error', {}, { usePrettierrc: true }],
     'react/react-in-jsx-scope': 'off',
@@ -67,5 +74,8 @@ module.exports = {
         argsIgnorePattern: '^_',
       },
     ],
+
+    'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
+    'react-hooks/exhaustive-deps': 'warn', // Checks effect dependencies
   },
 };

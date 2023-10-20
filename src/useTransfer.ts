@@ -2,7 +2,7 @@ import { BI, commons, helpers } from '@ckb-lumos/lumos';
 import { useEffect } from 'react';
 import { useMutation, useQuery } from 'react-query';
 
-import { addCellDep } from './helper.ts';
+import { addCellDep, asserts } from './helper.ts';
 import { useAssetList } from './useAssetList.ts';
 import { useReceiver, useSender } from './useConnector.ts';
 import { useProvider } from './useProvider.ts';
@@ -101,9 +101,7 @@ export function useTransfer() {
   const mutation = useMutation({
     mutationKey: 'transfer',
     mutationFn: async () => {
-      if (!txSkeleton) {
-        return;
-      }
+      asserts(txSkeleton, 'Waiting for building the transaction');
 
       if (sender.signature) {
         const tx = helpers.sealTransaction(txSkeleton, [sender.signature]);
@@ -124,6 +122,7 @@ export function useTransfer() {
       }
 
       sender.sign(message);
+      throw new Error('Waiting for the signature');
     },
   });
 
@@ -132,7 +131,7 @@ export function useTransfer() {
     if (txSkeleton && sender.signature && !mutation.isLoading) {
       mutation.mutate();
     }
-  }, [sender.signature, txSkeleton, mutation.isLoading]);
+  }, [sender.signature, txSkeleton, mutation.isLoading, mutation]);
 
   return mutation;
 }

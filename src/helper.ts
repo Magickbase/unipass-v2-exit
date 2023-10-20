@@ -26,3 +26,10 @@ export function addCellDep(
 
   return txSkeleton;
 }
+
+export function asserts(
+  condition: unknown,
+  message = 'Assertion failed',
+): asserts condition {
+  if (!condition) throw new Error(message);
+}
