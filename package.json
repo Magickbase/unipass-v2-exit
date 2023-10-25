@@ -24,6 +24,7 @@
     "jotai": "^2.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-middle-ellipsis": "^1.2.2",
     "react-query": "^3.39.3"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { bytes } from '@ckb-lumos/codec';
-import { commons } from '@ckb-lumos/lumos';
+import { commons, Script } from '@ckb-lumos/lumos';
 import { connect, signMessage } from '@joyid/evm';
 import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -28,7 +28,7 @@ export function useJoyid(): Connector {
     [setJoyidConnectString],
   );
 
-  const lock = useMemo(() => {
+  const lock = useMemo<Script | undefined>(() => {
     if (!joyidConnectString) return undefined;
 
     const OMNILOCK = lumosConfig.SCRIPTS.OMNILOCK;
@@ -42,7 +42,7 @@ export function useJoyid(): Connector {
 
         // https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0042-omnilock/0042-omnilock.md#anyone-can-pay-mode
         // When anyone-can-pay mode is enabled, <2 bytes minimum ckb/udt in ACP> must be present.
-        [0b00000000, 0b00000000],
+        [0, 0],
       ),
     );
 

@@ -1,18 +1,24 @@
-import { ArrowUpDownIcon } from '@chakra-ui/icons';
+import { ArrowUpDownIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   ChakraProvider,
   Container,
+  Flex,
+  Heading,
   IconButton,
   Spinner,
-  Stack,
 } from '@chakra-ui/react';
 import { useMemo } from 'react';
+import MiddleEllipsis from 'react-middle-ellipsis';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { TransferAssetList } from './TransferAssetList.tsx';
+import { Connector } from './types.ts';
 import { useAssetList } from './useAssetList.ts';
 import { useReceiver, useSender, useSwitchConnector } from './useConnector.ts';
 
@@ -46,56 +52,71 @@ const Main = () => {
     return <TransferAssetList />;
   }, [sender.address, receiver.address, assetList.isLoading]);
 
-  const senderConnect = useMemo(() => {
-    if (sender.address) {
-      return (
-        <>
-          {sender.address}{' '}
-          <Button size="xs" onClick={sender.disconnect}>
-            Disconnect
-          </Button>
-        </>
-      );
-    }
-
-    return <Button onClick={sender.connect}>Connect</Button>;
-  }, [sender]);
-
-  const receiverConnect = useMemo(() => {
-    if (receiver.address) {
-      return (
-        <>
-          {receiver.address}{' '}
-          <Button size="xs" onClick={receiver.disconnect}>
-            Disconnect
-          </Button>
-        </>
-      );
-    }
-    return <Button onClick={receiver.connect}>Connect</Button>;
-  }, [receiver]);
-
   return (
-    <Container>
-      <Stack>
-        <Box>
-          <Badge>From ({sender.name})</Badge>
-          {senderConnect}
-        </Box>
-        <Box>
-          <IconButton
-            aria-label="swap"
-            icon={<ArrowUpDownIcon />}
-            rounded="full"
-            onClick={switchConnector}
-          />
-        </Box>
-        <Box>
-          <Badge>To ({receiver.name})</Badge> {receiverConnect}
-        </Box>
-      </Stack>
+    <Container pt={4}>
+      <Card variant="filled">
+        <CardHeader>
+          <Heading size="md">UniPass V2 Exit</Heading>
+        </CardHeader>
+
+        <CardBody alignContent="center">
+          <Box>
+            <Badge my={1}>From</Badge>
+
+            <ConnectButton connector={sender} />
+          </Box>
+          <Box textAlign="center">
+            <IconButton
+              aria-label="swap"
+              colorScheme="green"
+              icon={<ArrowUpDownIcon />}
+              rounded="full"
+              variant="ghost"
+              onClick={switchConnector}
+            />
+          </Box>
+          <Box>
+            <Badge my={1}>To</Badge>
+            <ConnectButton connector={receiver} />
+          </Box>
+        </CardBody>
+      </Card>
 
       <Box mt={8}>{assetListElement}</Box>
     </Container>
   );
 };
+
+function ConnectButton({ connector }: { connector: Connector }) {
+  if (!connector.address) {
+    return (
+      <Button colorScheme="green" w="full" onClick={connector.connect}>
+        Connect to {connector.name}
+      </Button>
+    );
+  }
+
+  return (
+    <Box title={connector.address} w="full" whiteSpace="nowrap">
+      <Flex alignItems="center" gap={1}>
+        <Box flex={1} w="full">
+          <MiddleEllipsis>
+            <span>{connector.address}</span>
+          </MiddleEllipsis>
+        </Box>
+
+        <Box>
+          <Button
+            aria-label="disconnect"
+            colorScheme="gray"
+            size="sm"
+            variant="ghost"
+            onClick={connector.disconnect}
+          >
+            <DeleteIcon />
+          </Button>
+        </Box>
+      </Flex>
+    </Box>
+  );
+}
