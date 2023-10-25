@@ -11,12 +11,14 @@ import {
   Flex,
   Heading,
   IconButton,
+  Link,
   Spinner,
 } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import MiddleEllipsis from 'react-middle-ellipsis';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
+import { CKB_EXPLORER_URL } from './env.ts';
 import { TransferAssetList } from './TransferAssetList.tsx';
 import { Connector } from './types.ts';
 import { useAssetList } from './useAssetList.ts';
@@ -64,7 +66,7 @@ const Main = () => {
             <Badge my={1}>From({sender.name})</Badge>
             <ConnectButton connector={sender} />
           </Box>
-          <Box textAlign="center">
+          <Box my={2} textAlign="center">
             <IconButton
               aria-label="swap"
               colorScheme="green"
@@ -100,11 +102,17 @@ function ConnectButton({ connector }: { connector: Connector }) {
   return (
     <Box title={address} w="full" whiteSpace="nowrap">
       <Flex alignItems="center" gap={1}>
-        <Box flex={1} w="full">
+        <Link
+          flex={1}
+          href={`${CKB_EXPLORER_URL}/address/${address}`}
+          p={0}
+          target="_blank"
+          w="full"
+        >
           <MiddleEllipsis key={address}>
             <span>{address}</span>
           </MiddleEllipsis>
-        </Box>
+        </Link>
 
         <Box>
           <Button

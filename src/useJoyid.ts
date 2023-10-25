@@ -81,7 +81,7 @@ export function useJoyid(): Connector {
   }, [setJoyidSignature]);
 
   return {
-    name: 'JoyID',
+    name: 'Omnilock via JoyID',
     ...useLockInfo(lock),
     signature: joyidSignature,
     sign,

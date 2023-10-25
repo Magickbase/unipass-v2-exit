@@ -43,3 +43,7 @@ export const UNIPASS_CELL_DEPS = IS_MAINNET
 export const UNIPASS_CODE_HASH = IS_MAINNET
   ? MAINNET_UNIPASS_CODEHASH
   : TESTNET_UNIPASS_CODEHASH;
+
+export const CKB_EXPLORER_URL = IS_MAINNET
+  ? 'https://explorer.nervos.org'
+  : 'https://pudge.explorer.nervos.org';
