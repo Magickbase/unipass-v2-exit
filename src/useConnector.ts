@@ -4,26 +4,26 @@ import { Connector } from './types.ts';
 import { useJoyid } from './useJoyid.ts';
 import { useUnipass } from './useUnipass.ts';
 
-const connectorAtom = atom(true);
+const switchedAtom = atom(false);
 
 export function useSender(): Connector {
   const unipass = useUnipass();
   const joyid = useJoyid();
-  const [connector] = useAtom(connectorAtom);
+  const [switched] = useAtom(switchedAtom);
 
-  return connector ? unipass : joyid;
+  return switched ? joyid : unipass;
 }
 
 export function useReceiver(): Connector {
   const unipass = useUnipass();
   const joyid = useJoyid();
-  const [connector] = useAtom(connectorAtom);
+  const [connector] = useAtom(switchedAtom);
 
-  return connector ? joyid : unipass;
+  return connector ? unipass : joyid;
 }
 
 export function useSwitchConnector() {
-  const [connector, setConnector] = useAtom(connectorAtom);
+  const [switched, setSwitched] = useAtom(switchedAtom);
 
-  return () => setConnector(!connector);
+  return () => setSwitched(!switched);
 }

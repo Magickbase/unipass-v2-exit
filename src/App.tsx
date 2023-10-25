@@ -35,10 +35,10 @@ export default function App() {
 }
 
 const Main = () => {
+  const switchConnector = useSwitchConnector();
   const sender = useSender();
   const receiver = useReceiver();
   const assetList = useAssetList();
-  const switchConnector = useSwitchConnector();
 
   const assetListElement = useMemo(() => {
     if (!sender.address || !receiver.address) {
@@ -61,8 +61,7 @@ const Main = () => {
 
         <CardBody alignContent="center">
           <Box>
-            <Badge my={1}>From</Badge>
-
+            <Badge my={1}>From({sender.name})</Badge>
             <ConnectButton connector={sender} />
           </Box>
           <Box textAlign="center">
@@ -76,7 +75,7 @@ const Main = () => {
             />
           </Box>
           <Box>
-            <Badge my={1}>To</Badge>
+            <Badge my={1}>To({receiver.name})</Badge>
             <ConnectButton connector={receiver} />
           </Box>
         </CardBody>
@@ -88,7 +87,9 @@ const Main = () => {
 };
 
 function ConnectButton({ connector }: { connector: Connector }) {
-  if (!connector.address) {
+  const address = connector.address;
+
+  if (!address) {
     return (
       <Button colorScheme="green" w="full" onClick={connector.connect}>
         Connect to {connector.name}
@@ -97,11 +98,11 @@ function ConnectButton({ connector }: { connector: Connector }) {
   }
 
   return (
-    <Box title={connector.address} w="full" whiteSpace="nowrap">
+    <Box title={address} w="full" whiteSpace="nowrap">
       <Flex alignItems="center" gap={1}>
         <Box flex={1} w="full">
-          <MiddleEllipsis>
-            <span>{connector.address}</span>
+          <MiddleEllipsis key={address}>
+            <span>{address}</span>
           </MiddleEllipsis>
         </Box>
 
