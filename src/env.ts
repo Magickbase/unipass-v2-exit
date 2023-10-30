@@ -1,6 +1,6 @@
 import { CellDep } from '@ckb-lumos/lumos';
 
-export const IS_MAINNET = import.meta.env.VITE_NETWORK === 'mainnet';
+export const IS_MAINNET = import.meta.env.VITE_CKB_NETWORK === 'mainnet';
 
 export const RPC_URL = IS_MAINNET
   ? 'https://mainnet.ckb.dev'
